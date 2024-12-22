@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Snoozy" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.MyApp.Splash" parent="Theme.SplashScreen">
+        <!-- Set the background color for the splash screen in dark mode -->
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <!-- Set the icon for the splash screen -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/calendar_icon</item>
+        <!-- Optionally, set the duration for the icon animation -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <!-- Keep the splash screen on-screen until the app is ready -->
+        <item name="postSplashScreenTheme">@style/Theme.Snoozy</item>
+    </style>
+
+
+</resources>
