@@ -2,6 +2,7 @@ package com.zeamapps.snoozy.presentation
 
 import android.R
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Scaffold
@@ -46,15 +48,13 @@ class MainActivity : ComponentActivity() {
         val themeViewModel = viewModels<ThemeViewModel>()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-//        splashScreen.setKeepOnScreenCondition{
-//          //  viewModel.value.startDestination.value == ScreenRoutes.OnBoardingScreen.routes
-//        }
+
         setContent {
             SnoozyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MyAppTheme(themeViewModel.value.readTheme().collectAsState(ThemeMode.SYSTEM_DEFAULT).value) {
                        ReminderAppNavigation(viewModel = viewModel, themeViewModel = themeViewModel.value)
-
+                        Log.d("TAg","Test")
                        //
                     }
                 }
