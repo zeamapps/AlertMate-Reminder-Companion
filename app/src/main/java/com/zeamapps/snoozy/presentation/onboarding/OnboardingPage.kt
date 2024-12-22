@@ -102,7 +102,7 @@ fun OnboardingScreen(onFinish: (Boolean) -> Unit) {
                 .padding(16.dp)
         ) {
             Text (
-                text = if (pagerState.currentPage == onboardingPages.size - 1) "Get  Started" else "Next",
+                text = if (pagerState.currentPage == onboardingPages.size - 1) "Get Started" else "Next",
                 color = MaterialTheme.colorScheme.onSecondary
             )
         }
