@@ -46,7 +46,7 @@ object NotificationHelper {
 
     private const val CHANNEL_ID = "reminder_channel"
     private const val CHANNEL_NAME = "Reminder Notifications"
-    private const val CHANNEL_DESCRIPTION = "Notifications for reminders"
+    private const val CHANNEL_DESCRIPTION = "Reminders"
 
     fun showNotification(
         context: Context,
@@ -58,19 +58,7 @@ object NotificationHelper {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         // Create a notification channel (Required for Android 8.0 and above)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "reminder_channel",
-                "Reminders",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Channel for reminder notifications"
-                enableLights(true)
-                lightColor = Color.BLUE
-                enableVibration(true)
-            }
-            notificationManager.createNotificationChannel(channel)
-        }
+        createNotificationChannel(context)
 
         // Create an intent for the "Mark as Done" action
         val markAsDoneIntent = Intent(context, NotificationActionReceiver::class.java).apply {
@@ -135,7 +123,6 @@ object NotificationHelper {
         notificationManager.notify(reminderId, notification)
     }
 
-
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -149,6 +136,7 @@ object NotificationHelper {
             manager?.createNotificationChannel(channel)
         }
     }
+
 }
 
 
