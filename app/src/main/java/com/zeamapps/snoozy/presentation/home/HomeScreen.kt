@@ -1,9 +1,7 @@
 package com.zeamapps.snoozy.presentation.home
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -39,8 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zeamapps.snoozy.data.models.Reminder
 import com.zeamapps.snoozy.notification.getNotificationPermissionState
 import com.zeamapps.snoozy.notification.openNotificationSettings
@@ -54,8 +50,6 @@ import com.zeamapps.snoozy.presentation.components.generateDatesFromCurrentDate
 import com.zeamapps.snoozy.presentation.viewmodel.ReminderViewModel
 import com.zeamapps.snoozy.utill.Constants
 import com.zeamapps.snoozy.utill.DateFormatHandler
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.YearMonth
@@ -185,7 +179,7 @@ fun HomeScreen(
                 } else {
                     // Populate Reminders
                     items(filteredReminders, key = { it.id }) { reminder ->
-                        Log.d("Reminder","REMINDERID@### "+reminder.id)
+                        Log.d("Reminder", "REMINDERID@### " + reminder.id)
                         ReminderDetailsCard(
                             reminder = reminder,
                             isReminderEnabled = true,
@@ -204,33 +198,31 @@ fun HomeScreen(
         }
 
         // Bottom Sheet for Adding Reminders
+        val reminderTimeStamp = DateFormatHandler().mergeDateAndTime(
+            mainViewModel.date.value,
+            mainViewModel.time.value
+        )
+
         if (showBottomSheet.value) {
+            val reminder = Reminder(
+                tittle = mainViewModel.reminderTittle.value,
+                description = mainViewModel.reminderDesc.value,
+                time = reminderTimeStamp,
+                tagColor = mainViewModel.tagColor.value.value.toLong(),
+                repeatingOptions = mainViewModel.repeatingOptions.value
+            )
             AddReminder(mainViewModel, reminderViewModel, {
                 showBottomSheet.value = false
             }, {
-
-                if(!mainViewModel.reminderTittle.value.isEmpty()) {
-                    val reminderTimeStamp = DateFormatHandler().mergeDateAndTime(
-                        mainViewModel.date.value,
-                        mainViewModel.time.value
-                    )
-                    val reminder = Reminder(
-                        tittle = mainViewModel.reminderTittle.value,
-                        description = mainViewModel.reminderDesc.value,
-                        time = reminderTimeStamp,
-                        tagColor = mainViewModel.tagColor.value.value.toLong(),
-                        repeatingOptions = mainViewModel.repeatingOptions.value
-                    )
-                    Log.d(
-                        "Reminder",
-                        "ReminderCurrentTime : " + reminderTimeStamp + " : " + mainViewModel.time.value
-                    )
-                    reminderViewModel.insertReminder(reminder)
-                    //   Toast.makeText(localContext, "Reminder Added.", Toast.LENGTH_SHORT).show()
-                    showBottomSheet.value = false
-                }else{
-                    Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
-                }
+                showBottomSheet.value = false
+                updateOrInsertReminder(
+                    reminderViewModel,
+                    mainViewModel,
+                    context,
+                    false,
+                    reminderId.value,
+                    reminder
+                )
             }, 0L)
         }
         // Update Reminder Screen
@@ -238,7 +230,17 @@ fun HomeScreen(
             AddReminder(
                 mainViewModel = mainViewModel,
                 reminderViewModel = reminderViewModel,
-                onClickCancel = { showUpdateReminder.value = false },
+                onClickCancel = { reminder ->
+                    reminder.copy(id = reminderId.value, time = reminderTimeStamp)
+                    showUpdateReminder.value = false
+                    updateOrInsertReminder(
+                        reminderViewModel,
+                        mainViewModel,
+                        context,
+                        true,
+                        reminderId.value, reminder
+                    )
+                },
                 onClickSave = { showUpdateReminder.value = false },
                 id = reminderId.value
             )
@@ -246,86 +248,22 @@ fun HomeScreen(
     }
 }
 
-
-//@Composable
-//fun SettingsScreen(
-//    onNavigateBack: () -> Unit,
-//    onNotificationSettingsClick: () -> Unit,
-//    onThemeToggle: (Boolean) -> Unit
-//) {
-//    Scaffold(
-//        topBar = {
-//            AppBar(
-//                title = "Settings",
-//                onBackBtnClicked = onNavigateBack
-//            )
-//        }
-//    ) { paddingValues ->
-//        Column(
-//            modifier = Modifier
-//                .padding(paddingValues)
-//                .fillMaxSize()
-//                .background(MaterialTheme.colorScheme.background)
-//        ) {
-//            // General Settings
-//            SettingsCategory("General")
-//            SettingItem(
-//                title = "Notifications",
-//                subtitle = "Manage notification preferences",
-//                onClick = onNotificationSettingsClick
-//            )
-//            SettingItem(
-//                title = "Theme",
-//                subtitle = "Switch between Light and Dark mode",
-//                onClick = { onThemeToggle(/* isDarkMode */ true) }
-//            )
-//
-//            // Reminder Preferences
-//            SettingsCategory("Reminder Preferences")
-//            SettingItem(
-//                title = "Default Reminder Time",
-//                subtitle = "Set default time for new reminders",
-//                onClick = { /* Open time picker */ }
-//            )
-//
-//            // Add other sections...
-//        }
-//    }
-//}
-//
-//@Composable
-//fun SettingsCategory(title: String) {
-//    Text(
-//        text = title,
-//        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-//        modifier = Modifier.padding(16.dp)
-//    )
-//}
-//
-//@Composable
-//fun SettingItem(
-//    title: String,
-//    subtitle: String,
-//    onClick: () -> Unit
-//) {
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable(onClick = onClick)
-//            .padding(16.dp),
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Column(modifier = Modifier.weight(1f)) {
-//            Text(text = title, style = MaterialTheme.typography.bodyLarge)
-//            Text(
-//                text = subtitle,
-//                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
-//            )
-//        }
-//        Icon(
-//            imageVector = Icons.Default.ChevronRight,
-//            contentDescription = null,
-//            tint = MaterialTheme.colorScheme.onBackground
-//        )
-//    }
-//}
+fun updateOrInsertReminder(
+    reminderViewModel: ReminderViewModel,
+    mainViewModel: MainViewModel,
+    context: Context,
+    updateFlag: Boolean,
+    reminderId: Long,
+    reminder1: Reminder
+) {
+    if (!mainViewModel.reminderTittle.value.isEmpty()) {
+        if (updateFlag) {
+            reminderViewModel.updateReminder(reminder1)
+            Toast.makeText(context, "Reminder Updated", Toast.LENGTH_SHORT).show()
+        } else {
+            reminderViewModel.insertReminder(reminder1)
+        }
+    } else {
+        Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
+    }
+}

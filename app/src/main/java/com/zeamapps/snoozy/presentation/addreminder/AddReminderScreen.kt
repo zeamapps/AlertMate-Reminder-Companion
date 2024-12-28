@@ -1,8 +1,6 @@
 package com.zeamapps.snoozy.presentation.addreminder
 
-import android.app.AlertDialog
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,10 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -57,143 +51,13 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-@Composable
-fun AddReminder1(
-    mainViewModel: MainViewModel,
-    reminderViewModel: ReminderViewModel,
-    onDismiss: () -> Unit
-) {
-    val isSelected = remember { mutableStateOf(true) }
-    val localContext = LocalContext.current
-
-    Card(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SnoozyColors.SmokyBlack),
-        colors = CardDefaults.cardColors(SnoozyColors.OnyxBlack)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TitleText()
-            ButtonRow(isSelected)
-
-            if (isSelected.value) {
-                CustomReminder(mainViewModel) {
-                    val reminderTimeStamp = DateFormatHandler().mergeDateAndTime(
-                        mainViewModel.date.value,
-                        mainViewModel.time.value
-                    )
-                    val reminder = Reminder(
-                        tittle = mainViewModel.reminderTittle.value,
-                        description = mainViewModel.reminderDesc.value,
-                        time = reminderTimeStamp,
-                        tagColor = mainViewModel.tagColor.value.value.toLong(),
-                        repeatingOptions = RepeatingOptions.DO_NOT_REPEAT
-                    )
-                    Log.d(
-                        "Reminder",
-                        "ReminderCurrentTime : " + reminderTimeStamp + " : " + mainViewModel.time.value
-                    )
-
-                    reminderViewModel.insertReminder(reminder)
-                    Toast.makeText(localContext, "Reminder Added.", Toast.LENGTH_SHORT).show()
-                    onDismiss()
-                }
-            } else {
-//                AddReminder(mainViewModel) {
-//                    val extractedTimeStamp =
-//                        DateFormatHandler().extractTimestamp(mainViewModel.aiReminderTitle.value)
-//                    val timeStamp = extractedTimeStamp ?: System.currentTimeMillis()
-//                    val reminder = Reminder(
-//                        tittle = mainViewModel.aiReminderTitle.value,
-//                        description = mainViewModel.aiRemiderDesc.value,
-//                        time = timeStamp,
-//                        tagColor = DateFormatHandler().convertColorToLong(mainViewModel.tagColor.value)
-//                    )
-//                    reminderViewModel.insertReminder(reminder)
-//                    onDismiss()
-//                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TitleText() {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = Constants.REMINDER_TITTLE,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            color = Color.White
-        )
-    }
-}
-
-@Composable
-fun ButtonRow(isSelected: MutableState<Boolean>) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Each CardButton now respects the weight within the Row
-        CardButton(
-            onClick = { isSelected.value = true },
-            isSelected = isSelected.value,
-            buttonTitle = Constants.CUSTOM,
-            modifier = Modifier.weight(1f)
-        )
-        CardButton(
-            onClick = { isSelected.value = false },
-            isSelected = !isSelected.value,
-            buttonTitle = Constants.WITH_AI,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-fun CardButton(
-    onClick: () -> Unit,
-    isSelected: Boolean,
-    buttonTitle: String,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .height(50.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Color.Black else Color.Transparent
-        )
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = buttonTitle,
-                color = Color.White,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReminder(
     mainViewModel: MainViewModel,
     reminderViewModel: ReminderViewModel,
-    onClickCancel: () -> Unit = {},
+    onClickCancel: (Reminder) -> Unit = {},
     onClickSave: () -> Unit = {},
     id: Long
 ) {
@@ -205,23 +69,21 @@ fun AddReminder(
     var showColorPicker = remember { mutableStateOf(false) }
     var showTimePicker = remember { mutableStateOf(false) }
     var showRepeatingOptions = remember { mutableStateOf(false) }
-
-    if (id != 0L) {
-        var reminder = reminderViewModel.getReminderById(id)
-            .collectAsState(initial = Reminder(0L, "", "", 0L, 0L, RepeatingOptions.DO_NOT_REPEAT))
-        mainViewModel.reminderTittle.value = reminder.value.tittle
-        mainViewModel.reminderDesc.value = reminder.value.description
-        mainViewModel.tagColor.value = Color(reminder.value.tagColor)
-        mainViewModel.time.value = reminder.value.time
-        mainViewModel.date.value = reminder.value.time
-    } else {
-//        mainViewModel.reminderTittle.value = ""
-//        mainViewModel.reminderDesc.value = ""
-    }
+    val reminder =
+        remember { mutableStateOf(Reminder(0L, "", "", 0L, 0L, RepeatingOptions.DO_NOT_REPEAT)) }
     var modifier = if (id != 0L) Modifier.fillMaxHeight() else Modifier.wrapContentHeight()
     var reminderTxt = if (id == 0L) "Set Up Your Reminder" else "Reminder Details"
     ModalBottomSheet(
-        onDismissRequest = onClickCancel,
+        onDismissRequest = {
+          reminder.value =  reminder.value.copy(
+                tittle = mainViewModel.reminderTittle.value,
+                description = mainViewModel.reminderDesc.value,
+                tagColor = mainViewModel.tagColor.value.value.toLong(),
+                time = mainViewModel.time.value,
+                repeatingOptions = mainViewModel.repeatingOptions.value
+            )
+            onClickCancel(reminder.value)
+        },
         sheetState = bottomSheetScaffoldState,
         containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = {},
@@ -257,19 +119,26 @@ fun AddReminder(
                             color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Normal,
                             fontSize = 18.sp
-                        ), modifier = Modifier.clickable(onClick = onClickCancel)
+                        ),
+                        modifier = Modifier.clickable(onClick = {
+                            reminder.value =  reminder.value.copy(
+                                tittle = mainViewModel.reminderTittle.value,
+                                description = mainViewModel.reminderDesc.value,
+                                tagColor = mainViewModel.tagColor.value.value.toLong(),
+                                time = mainViewModel.time.value,
+                                repeatingOptions = mainViewModel.repeatingOptions.value
+                            )
+                            onClickCancel(reminder.value) })
                     )
                 }
 
             }
-
-
             // Input Field for Title
             // Request focus after BottomSheet animation
             LaunchedEffect(bottomSheetScaffoldState.currentValue) {
                 if (bottomSheetScaffoldState.hasExpandedState) {
-                    focusRequester.requestFocus()
-                    keyboardController?.show()
+//                    focusRequester.requestFocus()
+//                    keyboardController?.show()
                 }
             }
             ReminderInputField(
@@ -283,7 +152,7 @@ fun AddReminder(
             SelectorRow(
                 selectors = listOf(
                     "Date" to DateFormatHandler().getDayFromTimestamp(mainViewModel.date.value),
-                    "Time" to "3:00 PM",
+                    "Time" to DateFormatHandler().formatTimestampToTime(mainViewModel.time.value),
                     "Tag Color" to null, // Special handling for Tag Color selector
                     "Repeating" to "Do not repeat"
                 ), mainViewModel, {
@@ -309,7 +178,7 @@ fun AddReminder(
                             .weight(1f)
                             .height(48.dp)
                             .background(Color.Transparent, shape = RoundedCornerShape(2.dp))
-                            .clickable { onClickCancel() },
+                            .clickable { onClickCancel(reminder.value) },
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -378,7 +247,6 @@ fun AddReminder(
             mainViewModel.repeatingOptions.value = it
         }
     }
-
 }
 
 
@@ -472,7 +340,7 @@ fun SelectorRow(
                     )
                 } else if (type == "Repeating") {
                     Text(
-                        text = mainViewModel.repeatingOptions.value.name.replace("_"," "),
+                        text = mainViewModel.repeatingOptions.value.name.replace("_", " "),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Medium,

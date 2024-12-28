@@ -76,12 +76,12 @@ fun TimePickerSample(
                     )
                     Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
                         Button(onClick = onDismiss) {
-                            Text("Dismiss")
+                            Text("Dismiss", color = MaterialTheme.colorScheme.onSecondary)
                         }
                    //     Text("Cancel", fontWeight = FontWeight.Normal, color = Color.White)
                       //  Spacer(Modifier.width(20.dp))
                         Button(onClick = { onConfirm(timePickerState) }) {
-                            Text("Confirm")
+                            Text("Confirm",color = MaterialTheme.colorScheme.onSecondary)
                         }
                  //       Text("Okay", fontWeight = FontWeight.Normal, color = Color.White)
                     }

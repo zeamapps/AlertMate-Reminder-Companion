@@ -31,7 +31,7 @@ class MainViewModel @Inject constructor(
 
     var tagColor = mutableStateOf(SnoozyColors.colorCodeList.random())
     var date = mutableStateOf(0L)
-    var time = mutableStateOf(0L)
+    var time = mutableStateOf(System.currentTimeMillis())
     var repeatingOptions = mutableStateOf(RepeatingOptions.DO_NOT_REPEAT)
 
 

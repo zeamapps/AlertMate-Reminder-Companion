@@ -1,0 +1,30 @@
+name: Run test
+
+on:
+  pull_request:
+    branches: [master]  # Corrected typo here (changed 'braches' to 'branches')
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2  # Use the correct version
+
+      # Setup JDK 17
+      - name: Setup JDK 17
+        uses: actions/setup-java@v2  # Make sure to use a stable version
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: 'gradle'  # Caching Gradle dependencies
+
+      # Grant execute permissions to gradlew
+      - name: Grant execute permissions for gradlew
+        run: chmod +x gradlew
+
+      # Run unit tests (Assuming you're using Gradle)
+      - name: Run unit tests
+        run: ./gradlew clean testDebug  # Run Gradle tests (adjust if you're using Maven or another tool)

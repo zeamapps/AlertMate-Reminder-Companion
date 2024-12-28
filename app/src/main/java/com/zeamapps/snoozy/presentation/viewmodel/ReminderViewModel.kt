@@ -35,16 +35,21 @@ class ReminderViewModel @Inject constructor(
         workManagerProvider.addOrUpdateReminder(reminder, true)
     }
 
-    fun updateReminder(reminder: Reminder) = executeInViewModelScope {
-        reminderRepo.updateReminder(reminder)
-        workManagerProvider.addOrUpdateReminder(reminder, false)
+    fun updateReminder(reminder: Reminder) {
+        Log.d("Reminder", "REMINDERUPDATED   ${reminder.tittle}")
+        executeInViewModelScope {
+            Log.d("Reminder","@#@REminderUpd -> "+reminder.tittle)
+            reminderRepo.updateReminder(reminder)
+
+           // workManagerProvider.addOrUpdateReminder(reminder, false)
+        }
     }
 
     fun insertReminder(reminder: Reminder) {
         Log.d("Reminder", "REMINDERINSERTED   ${reminder.id}")
 
         executeInViewModelScope {
-           var reminderId = reminderRepo.insertReminder(reminder)
+            var reminderId = reminderRepo.insertReminder(reminder)
             reminder.id = reminderId
             Log.d("Reminder", "REMINDERINSERTEDNEW   ${reminder.id}")
             workManagerProvider.addOrUpdateReminder(reminder, false)
