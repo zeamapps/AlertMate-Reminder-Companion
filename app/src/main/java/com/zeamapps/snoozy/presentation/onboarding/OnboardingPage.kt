@@ -119,11 +119,11 @@ fun OnboardingPageContent(page: OnboardingPage) {
               .fillMaxSize()
                 .padding(16 .dp)
     ) {
-        Icon(
+         Icon(
             imageVector = page.icon,
             contentDescription = page.title,
             modifier = Modifier
-                .size(80.dp)
+                . size(80.dp)
                 .padding(bottom = 16.dp),
             tint = MaterialTheme.colorScheme.primary
         )
