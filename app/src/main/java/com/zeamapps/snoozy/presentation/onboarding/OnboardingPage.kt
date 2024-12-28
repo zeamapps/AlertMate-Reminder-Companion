@@ -116,7 +116,7 @@ fun OnboardingPageContent(page: OnboardingPage) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-              .fillMaxSize( )
+              .fillMaxSize()
             .padding(16.dp)
     ) {
         Icon(
