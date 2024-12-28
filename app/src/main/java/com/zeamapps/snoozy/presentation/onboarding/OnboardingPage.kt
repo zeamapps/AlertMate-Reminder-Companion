@@ -112,22 +112,22 @@ fun OnboardingScreen(onFinish: (Boolean) -> Unit) {
 
 @Composable
 fun OnboardingPageContent(page: OnboardingPage) {
-    Column(
+        Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
               .fillMaxSize()
-            .padding(16 .dp)
+                .padding(16 .dp)
     ) {
-        Icon(
+         Icon(
             imageVector = page.icon,
             contentDescription = page.title,
             modifier = Modifier
-                .size(80.dp)
+                . size(80.dp)
                 .padding(bottom = 16.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        Text(
+         Text(
             text = page.title,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
