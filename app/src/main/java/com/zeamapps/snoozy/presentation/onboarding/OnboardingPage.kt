@@ -127,7 +127,7 @@ fun OnboardingPageContent(page: OnboardingPage) {
                 .padding(bottom = 16.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        Text(
+         Text(
             text = page.title,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
