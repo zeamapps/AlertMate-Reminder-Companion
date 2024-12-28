@@ -112,7 +112,7 @@ fun OnboardingScreen(onFinish: (Boolean) -> Unit) {
 
 @Composable
 fun OnboardingPageContent(page: OnboardingPage) {
-    Column(
+     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
