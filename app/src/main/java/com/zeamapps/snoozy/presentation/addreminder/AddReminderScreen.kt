@@ -94,7 +94,7 @@ fun AddReminder(
 //                    keyboardController?.show()
                 }
             }
-            ReminderContent(mainViewModel, { onClickSave(it) })
+              ReminderContent(mainViewModel, { onClickSave(it) })
         }
     }
 }
