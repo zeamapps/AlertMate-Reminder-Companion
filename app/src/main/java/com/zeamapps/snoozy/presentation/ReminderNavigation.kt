@@ -1,9 +1,13 @@
 package com.zeamapps.snoozy.presentation
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +19,7 @@ import com.zeamapps.snoozy.presentation.onboarding.OnboardingScreen
 import com.zeamapps.snoozy.presentation.settings.SettingsScreen
 import com.zeamapps.snoozy.presentation.viewmodel.ReminderViewModel
 import com.zeamapps.snoozy.presentation.viewmodel.ThemeViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -23,18 +28,22 @@ fun ReminderAppNavigation(
     navController: NavHostController = rememberNavController(),
     themeViewModel: ThemeViewModel
 ) {
-    var onBoardingViewModel: OnBoardingViewModel = hiltViewModel()
-    var reminderViewModel: ReminderViewModel = hiltViewModel()
+    val onBoardingViewModel: OnBoardingViewModel = hiltViewModel()
+    val reminderViewModel: ReminderViewModel = hiltViewModel()
+
     NavHost(
         navController = navController,
         startDestination = viewModel.value.startDestination.value
     ) {
+        // Onboarding Screen
         composable(route = ScreenRoutes.OnBoardingScreen.routes) {
-            OnboardingScreen {
+            OnboardingScreen { notificationGranted ->
                 onBoardingViewModel.saveEntry()
-                viewModel.value.notificationPermissionGranted.value = it
+                viewModel.value.notificationPermissionGranted.value = notificationGranted
             }
         }
+
+        // Home Screen
         composable(route = ScreenRoutes.HomeScreen.routes) {
             HomeScreen(
                 mainViewModel = viewModel.value,
@@ -43,18 +52,39 @@ fun ReminderAppNavigation(
                     navController.navigate(ScreenRoutes.SettingsScreen.routes)
                 },
                 onNavigateToUpdate = { reminderId ->
-                    Log.d("TAG", "Reminder App Navigation@#: $reminderId")
+                    Log.d("TAG", "Navigating to UpdateScreen with reminderId: $reminderId")
                     navController.navigate("${ScreenRoutes.UpdateScreen.routes}/$reminderId")
                 }
             )
         }
+
+        // Settings Screen
         composable(route = ScreenRoutes.SettingsScreen.routes) {
             SettingsScreen(themeViewModel = themeViewModel)
         }
-        composable(route = ScreenRoutes.UpdateScreen.routes +"/{reminderId}") {
-            var reminderId = it.arguments?.getLong("reminderId")
-            Log.d("TAG", "Reminder App Navigation: $reminderId")
-            UpdateScreen(viewModel.value, FocusRequester())
+
+        // Update Screen
+        composable(route = "${ScreenRoutes.UpdateScreen.routes}/{reminderId}") { backStackEntry ->
+            val reminderId = backStackEntry.arguments?.getString("reminderId")?.toLongOrNull()
+            val reminder = reminderViewModel.getReminderById(reminderId!!).collectAsState(initial = null).value
+
+            UpdateScreen(viewModel.value, FocusRequester(), reminderId, reminderViewModel)
+
+            BackHandler {
+                backStackEntry.lifecycleScope.launch {
+                    reminderViewModel.updateReminder(
+                        reminder!!.copy(
+                            id = reminderId,
+                            tittle = viewModel.value.updateReminderTitle.value,
+                            description = viewModel.value.reminderDesc.value,
+                            time = viewModel.value.time.value,
+                            tagColor = viewModel.value.tagColor.value.value.toLong(),
+                            repeatingOptions = viewModel.value.repeatingOptions.value
+                        )
+                    )
+                    navController.popBackStack()
+                }
+            }
         }
     }
 }
