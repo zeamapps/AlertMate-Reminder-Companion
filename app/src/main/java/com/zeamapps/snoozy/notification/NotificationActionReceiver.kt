@@ -42,7 +42,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 Toast.makeText(context, "Snoozed for 10 minutes!", Toast.LENGTH_SHORT).show()
                 ReminderWorkManager(context.applicationContext as Application).snoozeReminder(
                     notificationId,
-                    System.currentTimeMillis() + 3 * 60 * 1000,
+                    System.currentTimeMillis() + 5 * 60 * 1000,
                     reminderTittle,
                     reminderdesc,
                     repeatingOption,

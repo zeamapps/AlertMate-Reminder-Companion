@@ -1,5 +1,7 @@
 package com.zeamapps.snoozy.presentation.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
 import com.zeamapps.snoozy.notification.openNotificationSettings
 import com.zeamapps.snoozy.presentation.viewmodel.ThemeMode
 import com.zeamapps.snoozy.presentation.viewmodel.ThemeViewModel
@@ -97,7 +100,11 @@ fun SettingsScreen(
                     title = "Privacy Policy",
                     description = "Learn how we protect your data",
                     icon = Icons.Default.Security,
-                    onClick = onPrivacyPolicyClick
+                    onClick = {
+                        val url = "https://www.freeprivacypolicy.com/live/2a19bc85-514b-4c0f-9f2a-7fde1d0172fd"
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
                 )
                 Divider()
                 SettingItem(
@@ -180,7 +187,7 @@ fun ThemeSelectorDialog(viewModel: ThemeViewModel, onDismiss: () -> Unit) {
         },
         confirmButton = {
             Button(
-                onClick =  onDismiss ,
+                onClick = onDismiss,
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
             ) {
                 Text("OK")

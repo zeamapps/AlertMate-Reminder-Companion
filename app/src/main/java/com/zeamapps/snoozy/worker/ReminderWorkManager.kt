@@ -19,14 +19,12 @@ import javax.inject.Inject
 
 
 class ReminderWorkManager @Inject constructor(private val application: Application) {
-
     fun addOrUpdateReminder(reminder: Reminder, shouldDelete: Boolean) {
         val workManager = WorkManager.getInstance(application)
         Log.d("Tag", "Inside addOrUpdateReminder function" + reminder.id)
 
         // Cancel any existing work associated with this reminder
         workManager.cancelAllWorkByTag(reminder.id.toString())
-
         if (!shouldDelete) {
             val currentTimeMillis = System.currentTimeMillis()
             val delayMillis = reminder.time - currentTimeMillis
@@ -142,13 +140,12 @@ class ReminderWorkManager @Inject constructor(private val application: Applicati
 
         val workRequest = OneTimeWorkRequestBuilder<ReminderWorker>()
             .setInitialDelay(delayMinutes, TimeUnit.MILLISECONDS)
-            .setInputData(workData).addTag(reminderId.toString()).addTag(reminderId.toString())
+            .setInputData(workData).addTag(reminderId.toString())
             .build()
         WorkManager.getInstance(application).enqueueUniqueWork(
             "Reminder_${reminderId}",
             ExistingWorkPolicy.REPLACE,
             workRequest
         )
-
     }
 }

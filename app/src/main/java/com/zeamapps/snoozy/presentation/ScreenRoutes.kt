@@ -5,4 +5,5 @@ sealed class ScreenRoutes(val routes: String) {
     object OnBoardingScreen : ScreenRoutes(routes = "onboarding_screen")
     object HomeScreen : ScreenRoutes(routes = "home_screen")
     object SettingsScreen : ScreenRoutes(routes = "settings_screen")
+    object UpdateScreen : ScreenRoutes(routes = "update_Screen")
 }

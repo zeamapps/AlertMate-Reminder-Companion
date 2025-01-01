@@ -1,6 +1,5 @@
 package com.zeamapps.snoozy.presentation.home
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -32,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,42 +53,38 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
     mainViewModel: MainViewModel,
     reminderViewModel: ReminderViewModel,
-    setingsBtnClicked: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToUpdate:(Long) -> Unit = {}
 ) {
     val context = LocalContext.current
-    var showBottomSheet = remember { mutableStateOf(false) }
-    var showUpdateReminder = remember { mutableStateOf(false) }
-    var currentMonth = remember { mutableStateOf(YearMonth.now()) }
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val showUpdateReminder = remember { mutableStateOf(false) }
+    val currentMonth = remember { mutableStateOf(YearMonth.now()) }
     val daysInMonth = remember(currentMonth) { generateDatesFromCurrentDate() }
-    var selectedDate = remember { mutableStateOf(LocalDate.now()) }
+    val selectedDate = remember { mutableStateOf(LocalDate.now()) }
     val localDateTime = selectedDate.value.atStartOfDay()
     val timestamp = Timestamp.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
     val reminderId = remember { mutableStateOf(0L) }
-    mainViewModel.date.value = timestamp.time
     val reminders = reminderViewModel.reminderList.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
-
     val hasPermission = getNotificationPermissionState(context).collectAsState()
+    mainViewModel.date.value = timestamp.time
 
     Scaffold(
         floatingActionButton = {
-            PulsedFloatingActionBtn {
-                showBottomSheet.value = true
-            }
+            PulsedFloatingActionBtn { showBottomSheet.value = true }
         },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            AppBar(Constants.APP_NAME) {
-                setingsBtnClicked()
-            }
+            AppBar(Constants.APP_NAME) { onNavigateToSettings() }
         },
         modifier = Modifier.fillMaxSize()
     ) {
@@ -99,7 +93,7 @@ fun HomeScreen(
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(daysInMonth) { date ->
@@ -123,13 +117,12 @@ fun HomeScreen(
             // Section Title
             Text(
                 text = "Reminders for ${DateFormatHandler().getDayFromTimestamp(timestamp.time)}",
-                style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp),
-                modifier = Modifier.padding(16.dp)
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
-
-            // Formatted Date
-            val selectedFormattedDate =
-                selectedDate.value.format(DateTimeFormatter.ofPattern("EEE, dd MMM"))
 
             // Reminder List or Empty State
             LazyColumn(
@@ -137,12 +130,17 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
+
+                val selectedFormattedDate =
+                    selectedDate.value.format(DateTimeFormatter.ofPattern("EEE, dd MMM"))
+
                 val filteredReminders = reminders.value.filter { reminder ->
                     DateFormatHandler().formatDate(reminder.time) == selectedFormattedDate
                 }
 
                 if (filteredReminders.isEmpty()) {
                     // Empty State UI
+
                     item {
                         Column(
                             modifier = Modifier
@@ -179,18 +177,17 @@ fun HomeScreen(
                 } else {
                     // Populate Reminders
                     items(filteredReminders, key = { it.id }) { reminder ->
-                        Log.d("Reminder", "REMINDERID@### " + reminder.id)
                         ReminderDetailsCard(
                             reminder = reminder,
                             isReminderEnabled = true,
                             onSwitchToggle = {},
                             onClick = {
-                                showUpdateReminder.value = true
+                                Log.d("Tag","HomeScreen - ReminderValue --> "+reminder.id)
                                 reminderId.value = reminder.id
+                                showUpdateReminder.value = true
+                                onNavigateToUpdate(reminder.id)
                             },
-                            onDelete = {
-                                reminderViewModel.deleteReminder(reminder)
-                            }
+                            onDelete = { reminderViewModel.deleteReminder(reminder) }
                         )
                     }
                 }
@@ -198,52 +195,64 @@ fun HomeScreen(
         }
 
         // Bottom Sheet for Adding Reminders
-        val reminderTimeStamp = DateFormatHandler().mergeDateAndTime(
-            mainViewModel.date.value,
-            mainViewModel.time.value
-        )
-
         if (showBottomSheet.value) {
-            val reminder = Reminder(
-                tittle = mainViewModel.reminderTittle.value,
-                description = mainViewModel.reminderDesc.value,
-                time = reminderTimeStamp,
-                tagColor = mainViewModel.tagColor.value.value.toLong(),
-                repeatingOptions = mainViewModel.repeatingOptions.value
-            )
-            AddReminder(mainViewModel, reminderViewModel, {
-                showBottomSheet.value = false
-            }, {
-                showBottomSheet.value = false
-                updateOrInsertReminder(
-                    reminderViewModel,
-                    mainViewModel,
-                    context,
-                    false,
-                    reminderId.value,
-                    reminder
-                )
-            }, 0L)
-        }
-        // Update Reminder Screen
-        if (showUpdateReminder.value) {
             AddReminder(
                 mainViewModel = mainViewModel,
-                reminderViewModel = reminderViewModel,
-                onClickCancel = { reminder ->
-                    reminder.copy(id = reminderId.value, time = reminderTimeStamp)
-                    showUpdateReminder.value = false
-                    updateOrInsertReminder(
-                        reminderViewModel,
-                        mainViewModel,
-                        context,
-                        true,
-                        reminderId.value, reminder
+                onClickCancel = { showBottomSheet.value = false },
+                onClickSave = {
+                    showBottomSheet.value = false
+                    var reminderTitle =
+                        if (it) mainViewModel.aiReminderTitle.value else mainViewModel.reminderTittle.value
+                    var reminderTimestamp = if (it) DateFormatHandler().extractTimestamp(
+                        reminderTitle.toLowerCase(Locale.ROOT)
+                    ) else DateFormatHandler().mergeDateAndTime(
+                        mainViewModel.date.value,
+                        mainViewModel.time.value
                     )
-                },
-                onClickSave = { showUpdateReminder.value = false },
-                id = reminderId.value
+
+                    val reminder = Reminder(
+                        tittle = reminderTitle,
+                        description = mainViewModel.reminderDesc.value,
+                        time = reminderTimestamp!!,
+                        tagColor = mainViewModel.tagColor.value.value.toLong(),
+                        repeatingOptions = mainViewModel.repeatingOptions.value
+                    )
+                    reminderViewModel.insertReminder(reminder)
+                }
             )
+        }
+
+        // Update Reminder Screen
+        if (showUpdateReminder.value) {
+//                AddReminder(
+//                    mainViewModel = mainViewModel,
+//                    reminderViewModel = reminderViewModel,
+//                    onClickCancel = { showUpdateReminder.value = false },
+//                    onClickSave = {
+//                        showUpdateReminder.value = false
+//                        val reminderTimeStamp = DateFormatHandler().mergeDateAndTime(
+//                            mainViewModel.date.value,
+//                            mainViewModel.time.value
+//                        )
+//                        val reminder = Reminder(
+//                            id = reminderId.value,
+//                            tittle = mainViewModel.reminderTittle.value,
+//                            description = mainViewModel.reminderDesc.value,
+//                            time = reminderTimeStamp,
+//                            tagColor = mainViewModel.tagColor.value.value.toLong(),
+//                            repeatingOptions = mainViewModel.repeatingOptions.value
+//                        )
+//                        updateOrInsertReminder(
+//                            reminderViewModel,
+//                            mainViewModel,
+//                            context,
+//                            true,
+//                            reminderId.value,
+//                            reminder
+//                        )
+//                    },
+//                    id = reminderId.value
+//                )
         }
     }
 }
@@ -258,6 +267,7 @@ fun updateOrInsertReminder(
 ) {
     if (!mainViewModel.reminderTittle.value.isEmpty()) {
         if (updateFlag) {
+            Log.d("TAg", "Reminder If#" + reminder1.id)
             reminderViewModel.updateReminder(reminder1)
             Toast.makeText(context, "Reminder Updated", Toast.LENGTH_SHORT).show()
         } else {
