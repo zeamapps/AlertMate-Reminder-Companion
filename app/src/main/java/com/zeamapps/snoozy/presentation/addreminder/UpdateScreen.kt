@@ -3,6 +3,7 @@ package com.zeamapps.snoozy.presentation.addreminder
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,6 +24,7 @@ import com.zeamapps.snoozy.presentation.components.ColorPickerDialog
 import com.zeamapps.snoozy.presentation.components.CustomDatePicker
 import com.zeamapps.snoozy.presentation.components.RepeatingOptionDialog
 import com.zeamapps.snoozy.presentation.components.TimePickerSample
+import com.zeamapps.snoozy.presentation.viewmodel.ReminderViewModel
 import com.zeamapps.snoozy.utill.DateFormatHandler
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -29,13 +32,26 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun UpdateScreen(mainViewModel: MainViewModel, focusRequester: FocusRequester){
+fun UpdateScreen(
+    mainViewModel: MainViewModel,
+    focusRequester: FocusRequester,
+    reminderId: Long?,
+    reminderViewModel: ReminderViewModel
+) {
 
     var showDatePicker = remember { mutableStateOf(false) }
     var showColorPicker = remember { mutableStateOf(false) }
     var showTimePicker = remember { mutableStateOf(false) }
     var showRepeatingOptions = remember { mutableStateOf(false) }
-
+    var reminder = reminderViewModel.getReminderById(reminderId!!).collectAsState(initial = null)
+    Log.d("UpdateTittleScreen","Reminder :@# -> "+reminder.value?.tittle)
+    if(reminder.value != null){
+        Log.d("UpdateTittleScreen","Inside If Reminder :@# -> "+reminder.value?.tittle)
+        mainViewModel.updateReminderTitle.value = reminder.value!!.tittle
+        mainViewModel.reminderDesc.value = reminder.value!!.description
+        mainViewModel.date.value = reminder.value!!.time
+        mainViewModel.time.value = reminder.value!!.time
+    }
     Scaffold(topBar = {
         TopAppBar(
             title = { Text(text = "Reminder Details") },
@@ -44,14 +60,20 @@ fun UpdateScreen(mainViewModel: MainViewModel, focusRequester: FocusRequester){
                 titleContentColor = MaterialTheme.colorScheme.onBackground
             )
         )
-    }) {innerPadding ->
-        Column(Modifier.fillMaxSize().padding(innerPadding).padding(vertical = 10.dp, horizontal = 10.dp)) {
+    }) { innerPadding ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(vertical = 10.dp, horizontal = 10.dp)
+        ) {
             ReminderInputField(
                 title = "Reminder Title",
-                isFromAddScreen = true,
+                isFromAddScreen = false,
                 mainViewModel,
                 focusRequester
             )
+            Spacer(Modifier.padding(10.dp))
             SelectorRow(
                 selectors = listOf(
                     "Date" to DateFormatHandler().getDayFromTimestamp(mainViewModel.date.value),
