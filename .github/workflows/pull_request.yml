@@ -2,7 +2,7 @@ name: Run test
 
 on:
   pull_request:
-    branches: [master]  # Corrected typo here (changed 'braches' to 'branches')
+    branches: main  # Corrected typo here (changed 'braches' to 'branches')
 
 jobs:
   build:
@@ -21,9 +21,9 @@ jobs:
           java-version: 17
           cache: 'gradle'  # Caching Gradle dependencies
 
-      # Grant execute permissions to gradlew
+      # Grant  execute permissions to gradlew
       - name: Grant execute permissions for gradlew
-        run: chmod +x gradlew
+        run: chmod +x gradle
 
       # Run unit tests (Assuming you're using Gradle)
       - name: Run unit tests
