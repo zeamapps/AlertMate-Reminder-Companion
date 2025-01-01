@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zeamapps.snoozy.data.models.Reminder
 import com.zeamapps.snoozy.domain.AppEntryUseCases
 import com.zeamapps.snoozy.presentation.components.RepeatingOptions
 import com.zeamapps.snoozy.utill.SnoozyColors
@@ -20,11 +21,10 @@ class MainViewModel @Inject constructor(
         private set
     var reminderDesc = mutableStateOf("")
         private set
-
     var aiReminderTitle = mutableStateOf("")
         private set
-    var aiRemiderDesc = mutableStateOf("")
-        private set
+    var updateReminderTitle = mutableStateOf("")
+
 
     var notificationPermissionGranted = mutableStateOf(false)
         private set
@@ -34,9 +34,20 @@ class MainViewModel @Inject constructor(
     var time = mutableStateOf(System.currentTimeMillis())
     var repeatingOptions = mutableStateOf(RepeatingOptions.DO_NOT_REPEAT)
 
+    fun resetValues() {
+        tagColor = mutableStateOf(SnoozyColors.colorCodeList.random())
+        reminderTittle = mutableStateOf("")
+        time = mutableStateOf(System.currentTimeMillis())
+        repeatingOptions = mutableStateOf(RepeatingOptions.DO_NOT_REPEAT)
+    }
+
 
     fun onReminderTitleChange(reminderTittleNewValue: String) {
         reminderTittle.value = reminderTittleNewValue
+    }
+
+    fun onReminderUpdateTitleChange(reminder: String){
+        updateReminderTitle.value = reminder
     }
 
     fun onReminderDescChange(reminderDescNewValue: String) {
