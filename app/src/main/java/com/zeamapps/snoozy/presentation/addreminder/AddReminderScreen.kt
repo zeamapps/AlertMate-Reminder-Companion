@@ -170,6 +170,7 @@ fun ReminderContent(value: MainViewModel, onClickSave: (Boolean) -> Unit) {
             }
         }
     }
+
     if (selectedTab.value == "NLP") {
         AiReminder(mainViewModel = value, { onClickSave(true) })
     } else {

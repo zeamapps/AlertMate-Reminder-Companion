@@ -62,7 +62,7 @@ fun HomeScreen(
     mainViewModel: MainViewModel,
     reminderViewModel: ReminderViewModel,
     onNavigateToSettings: () -> Unit,
-    onNavigateToUpdate:(Long) -> Unit = {}
+    onNavigateToUpdate: (Long) -> Unit = {}
 ) {
     val context = LocalContext.current
     val showBottomSheet = remember { mutableStateOf(false) }
@@ -77,6 +77,7 @@ fun HomeScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val hasPermission = getNotificationPermissionState(context).collectAsState()
     mainViewModel.date.value = timestamp.time
+
 
     Scaffold(
         floatingActionButton = {
@@ -135,7 +136,7 @@ fun HomeScreen(
                     selectedDate.value.format(DateTimeFormatter.ofPattern("EEE, dd MMM"))
 
                 val filteredReminders = reminders.value.filter { reminder ->
-                    DateFormatHandler().formatDate(reminder.time) == selectedFormattedDate
+                    DateFormatHandler().formatDate(reminder.time) == selectedFormattedDate && reminder.time >= System.currentTimeMillis()
                 }
 
                 if (filteredReminders.isEmpty()) {
@@ -182,7 +183,7 @@ fun HomeScreen(
                             isReminderEnabled = true,
                             onSwitchToggle = {},
                             onClick = {
-                                Log.d("Tag","HomeScreen - ReminderValue --> "+reminder.id)
+                                Log.d("Tag", "HomeScreen - ReminderValue --> " + reminder.id)
                                 reminderId.value = reminder.id
                                 showUpdateReminder.value = true
                                 onNavigateToUpdate(reminder.id)
@@ -200,24 +201,34 @@ fun HomeScreen(
                 mainViewModel = mainViewModel,
                 onClickCancel = { showBottomSheet.value = false },
                 onClickSave = {
-                    showBottomSheet.value = false
-                    var reminderTitle =
-                        if (it) mainViewModel.aiReminderTitle.value else mainViewModel.reminderTittle.value
-                    var reminderTimestamp = if (it) DateFormatHandler().extractTimestamp(
-                        reminderTitle.toLowerCase(Locale.ROOT)
-                    ) else DateFormatHandler().mergeDateAndTime(
-                        mainViewModel.date.value,
-                        mainViewModel.time.value
-                    )
 
-                    val reminder = Reminder(
-                        tittle = reminderTitle,
-                        description = mainViewModel.reminderDesc.value,
-                        time = reminderTimestamp!!,
-                        tagColor = mainViewModel.tagColor.value.value.toLong(),
-                        repeatingOptions = mainViewModel.repeatingOptions.value
-                    )
-                    reminderViewModel.insertReminder(reminder)
+                    if (mainViewModel.time.value >= System.currentTimeMillis()) {
+
+                        showBottomSheet.value = false
+                        var reminderTitle =
+                            if (it) mainViewModel.aiReminderTitle.value else mainViewModel.reminderTittle.value
+                        var reminderTimestamp = if (it) DateFormatHandler().extractTimestamp(
+                            reminderTitle.toLowerCase(Locale.ROOT)
+                        ) else DateFormatHandler().mergeDateAndTime(
+                            mainViewModel.date.value,
+                            mainViewModel.time.value
+                        )
+
+                        val reminder = Reminder(
+                            tittle = reminderTitle,
+                            description = mainViewModel.reminderDesc.value,
+                            time = reminderTimestamp!!,
+                            tagColor = mainViewModel.tagColor.value.value.toLong(),
+                            repeatingOptions = mainViewModel.repeatingOptions.value
+                        )
+                        reminderViewModel.insertReminder(reminder)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Reminder time cannot be in the past!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             )
         }
