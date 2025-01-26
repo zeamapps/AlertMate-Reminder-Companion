@@ -34,24 +34,12 @@ class MainViewModel @Inject constructor(
     var time = mutableStateOf(System.currentTimeMillis())
     var repeatingOptions = mutableStateOf(RepeatingOptions.DO_NOT_REPEAT)
 
-    fun resetValues() {
-        tagColor = mutableStateOf(SnoozyColors.colorCodeList.random())
-        reminderTittle = mutableStateOf("")
-        time = mutableStateOf(System.currentTimeMillis())
-        repeatingOptions = mutableStateOf(RepeatingOptions.DO_NOT_REPEAT)
-    }
-
-
     fun onReminderTitleChange(reminderTittleNewValue: String) {
         reminderTittle.value = reminderTittleNewValue
     }
 
     fun onReminderUpdateTitleChange(reminder: String){
         updateReminderTitle.value = reminder
-    }
-
-    fun onReminderDescChange(reminderDescNewValue: String) {
-        reminderDesc.value = reminderDescNewValue
     }
 
     init {
