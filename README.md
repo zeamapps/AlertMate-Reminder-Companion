@@ -1,2 +1,2 @@
-# Snoozy-Reminder-app
-Reminder app for android 
+# AlertMAte -Reminder-app
+Ultimate Rmeinder App for android 
