@@ -1,2 +1,2 @@
-# AlertMAte -Reminder-app
-Ultimate Rmeinder App for android 
+# AlertMate -Reminder App
+Ultimate Reminder App for android 
