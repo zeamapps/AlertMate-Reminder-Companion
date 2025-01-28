@@ -94,14 +94,14 @@ fun AddReminder(
 //                    keyboardController?.show()
                 }
             }
-              ReminderContent(mainViewModel, { onClickSave(it) })
+              ReminderContent(mainViewModel, { onClickSave(it) }, onClickCancel)
         }
     }
 }
 
 
 @Composable
-fun ReminderContent(value: MainViewModel, onClickSave: (Boolean) -> Unit) {
+fun ReminderContent(value: MainViewModel, onClickSave: (Boolean) -> Unit, onClickCancel : () -> Unit) {
     val selectedTab = remember { mutableStateOf("NLP") }
 
     val selectedTabIndex = if (selectedTab.value == "NLP") 0 else 1
@@ -174,6 +174,7 @@ fun ReminderContent(value: MainViewModel, onClickSave: (Boolean) -> Unit) {
     if (selectedTab.value == "NLP") {
         AiReminder(mainViewModel = value, { onClickSave(true) })
     } else {
-        CustomReminder(mainViewModel = value, { onClickSave(false) }, {})
+        CustomReminder(mainViewModel = value, { onClickSave(false) }, onClickCancel
+        )
     }
 }

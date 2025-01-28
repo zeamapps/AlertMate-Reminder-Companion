@@ -110,7 +110,7 @@ fun SettingsScreen(
                 Divider()
                 SettingItem(
                     title = "About",
-                    description = "App version: 1.3",
+                    description = "App version: 1.7",
                     icon = Icons.Default.Info,
                     onClick = onAboutClick
                 )

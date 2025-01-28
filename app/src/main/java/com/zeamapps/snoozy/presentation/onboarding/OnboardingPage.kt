@@ -166,7 +166,7 @@ fun PagerIndicator(size: Int, currentPage: Int) {
 val onboardingPages = listOf(
     OnboardingPage(
         icon = Icons.Default.Alarm,
-        title = "Welcome to Snoozy",
+        title = "Welcome to AlertMate",
         description = "Your personal reminder assistant."
     ),
     OnboardingPage(

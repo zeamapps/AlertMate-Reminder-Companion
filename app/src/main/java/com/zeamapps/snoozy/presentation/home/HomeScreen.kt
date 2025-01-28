@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.sp
 import com.zeamapps.snoozy.data.models.Reminder
 import com.zeamapps.snoozy.notification.getNotificationPermissionState
 import com.zeamapps.snoozy.notification.openNotificationSettings
+
+import com.zeamapps.snoozy.presentation.CalendarWithReminders
+
 import com.zeamapps.snoozy.presentation.MainViewModel
 import com.zeamapps.snoozy.presentation.addreminder.AddReminder
 import com.zeamapps.snoozy.presentation.components.AppBar
@@ -49,6 +52,7 @@ import com.zeamapps.snoozy.presentation.viewmodel.ReminderViewModel
 import com.zeamapps.snoozy.utill.Constants
 import com.zeamapps.snoozy.utill.DateFormatHandler
 import java.sql.Timestamp
+import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -98,9 +102,18 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(daysInMonth) { date ->
+                    val hasReminder = reminders.value.any { reminder ->
+                        val reminderDate = LocalDate.ofInstant(
+                            Instant.ofEpochMilli(reminder.time),
+                            ZoneId.systemDefault()
+                        )
+                        reminderDate == date
+                    }
+
                     DateCard(
                         date = date,
                         isSelected = date == selectedDate.value,
+                        hasReminder = hasReminder,
                         onClick = { selectedDate.value = date }
                     )
                 }
@@ -115,6 +128,13 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
+
+
+//            CalendarWithReminders(month = currentMonth.value,
+//                reminders = reminders.value,
+//                onDateSelected = { selectedDate ->
+//                    selectedDate
+//                })
             // Section Title
             Text(
                 text = "Reminders for ${DateFormatHandler().getDayFromTimestamp(timestamp.time)}",
@@ -202,17 +222,20 @@ fun HomeScreen(
                 onClickCancel = { showBottomSheet.value = false },
                 onClickSave = {
 
-                    if (mainViewModel.time.value >= System.currentTimeMillis()) {
+                    var mergedTimeStamp = DateFormatHandler().mergeDateAndTime(
+                        mainViewModel.date.value,
+                        mainViewModel.time.value
+                    )
+
+                    if (mergedTimeStamp >= System.currentTimeMillis()) {
 
                         showBottomSheet.value = false
                         var reminderTitle =
                             if (it) mainViewModel.aiReminderTitle.value else mainViewModel.reminderTittle.value
+
                         var reminderTimestamp = if (it) DateFormatHandler().extractTimestamp(
                             reminderTitle.toLowerCase(Locale.ROOT)
-                        ) else DateFormatHandler().mergeDateAndTime(
-                            mainViewModel.date.value,
-                            mainViewModel.time.value
-                        )
+                        ) else mergedTimeStamp
 
                         val reminder = Reminder(
                             tittle = reminderTitle,
@@ -288,3 +311,5 @@ fun updateOrInsertReminder(
         Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
     }
 }
+
+

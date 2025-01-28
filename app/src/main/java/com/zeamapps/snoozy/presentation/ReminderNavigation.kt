@@ -56,6 +56,9 @@ fun ReminderAppNavigation(
                     navController.navigate("${ScreenRoutes.UpdateScreen.routes}/$reminderId")
                 }
             )
+
+
+
         }
 
         // Settings Screen
