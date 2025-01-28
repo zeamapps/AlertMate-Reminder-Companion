@@ -1,4 +1,8 @@
 # AlertMate - Your Ultimate Reminder Companion ⏰
+
+![Group 16](https://github.com/user-attachments/assets/268422cd-a24b-47a8-891d-3abf6a85b19d)
+
+
 **AlertMate** is an AI-powered, user-friendly reminder app designed to keep you organized and stress-free. Whether you need recurring reminders, event-based alerts, or intelligent suggestions, AlertMate has everything you need to manage your day efficiently.
 
 ---
