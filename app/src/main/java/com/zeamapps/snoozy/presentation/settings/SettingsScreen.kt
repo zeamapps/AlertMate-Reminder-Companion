@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BuildCompat
 
 import com.zeamapps.snoozy.notification.openNotificationSettings
 import com.zeamapps.snoozy.presentation.viewmodel.ThemeMode
@@ -109,7 +110,7 @@ fun SettingsScreen(
                 Divider()
                 SettingItem(
                     title = "About",
-                    description = "App version and developer info",
+                    description = "App version: 1.7",
                     icon = Icons.Default.Info,
                     onClick = onAboutClick
                 )

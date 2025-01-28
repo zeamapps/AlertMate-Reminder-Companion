@@ -84,13 +84,12 @@ fun generateDatesFromCurrentDate(): List<LocalDate> {
     }
     return result
 }
-
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DateCard(
     date: LocalDate,
     isSelected: Boolean,
+    hasReminder: Boolean, // Flag to indicate reminders
     onClick: () -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -101,32 +100,32 @@ fun DateCard(
         if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onBackground.copy(
             alpha = 0.7f
         )
-    val borderColor = if (isSelected) Color.Transparent else Color.Transparent
-    //   MaterialTheme.colorScheme.surface
+
+    var higlightedColor = if(isSelected)textColor else MaterialTheme.colorScheme.primary
+
     Card(
         modifier = Modifier
             .size(60.dp)
-            .border(2.dp, borderColor, CircleShape),
+            ,
         shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        // elevation = CardDefaults.cardElevation(8.dp)
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable {
+                .padding(4.dp).clickable {
                     onClick()
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Abbreviated Day Name (e.g., "Mon")
+            // Day of the Week (e.g., "Mon")
             Text(
                 text = date.dayOfWeek.name.take(3),
-                color = textColor,
+                color = textColor.copy(0.6f),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
             )
@@ -137,13 +136,22 @@ fun DateCard(
                 color = textColor,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 14.sp
                 )
             )
+
+            // Reminder Dot (conditionally displayed)
+            if (hasReminder) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .background(higlightedColor,CircleShape)
+                )
+            }
         }
     }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

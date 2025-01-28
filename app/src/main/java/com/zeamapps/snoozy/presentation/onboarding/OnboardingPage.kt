@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -42,8 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import com.zeamapps.snoozy.R
-import java.util.jar.Manifest
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -66,7 +66,7 @@ fun OnboardingScreen(onFinish: (Boolean) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background).navigationBarsPadding()
     ) {
         HorizontalPager(
             state = pagerState,
@@ -166,7 +166,7 @@ fun PagerIndicator(size: Int, currentPage: Int) {
 val onboardingPages = listOf(
     OnboardingPage(
         icon = Icons.Default.Alarm,
-        title = "Welcome to Snoozy",
+        title = "Welcome to AlertMate",
         description = "Your personal reminder assistant."
     ),
     OnboardingPage(

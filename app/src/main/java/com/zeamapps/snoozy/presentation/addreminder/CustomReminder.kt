@@ -2,6 +2,7 @@ package com.zeamapps.snoozy.presentation.addreminder
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,6 +64,7 @@ fun CustomReminder(
     var showColorPicker = remember { mutableStateOf(false) }
     var showTimePicker = remember { mutableStateOf(false) }
     var showRepeatingOptions = remember { mutableStateOf(false) }
+    var context = LocalContext.current
 
     ReminderInputField(
         title = "Reminder Title",
@@ -118,7 +121,19 @@ fun CustomReminder(
                     MaterialTheme.colorScheme.primary,
                     shape = RoundedCornerShape(4.dp)
                 )
-                .clickable { onclickSave() },
+                .clickable {
+                    if (mainViewModel.reminderTittle.value.isNotEmpty()) {
+                        onclickSave()
+                    } else {
+                        Toast
+                            .makeText(
+                                context,
+                                "Please enter a reminder title.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                    }
+
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
