@@ -23,7 +23,7 @@ class ReminderViewModel @Inject constructor(
     val reminderList: StateFlow<List<Reminder>> get() = _reminderList
 
     init {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             reminderRepo.getAllReminders().collect {
                 _reminderList.value = it
             }

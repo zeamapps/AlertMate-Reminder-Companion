@@ -1,7 +1,5 @@
 package com.zeamapps.snoozy.presentation.addreminder
 
-import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,20 +9,30 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,143 +50,159 @@ import androidx.compose.ui.unit.dp
 import com.zeamapps.snoozy.presentation.MainViewModel
 import com.zeamapps.snoozy.presentation.components.ColorPickerDialog
 import com.zeamapps.snoozy.presentation.components.CustomDatePicker
-import com.zeamapps.snoozy.presentation.components.OutlinedTextViewDesign
 import com.zeamapps.snoozy.presentation.components.RepeatingOptionDialog
-import com.zeamapps.snoozy.presentation.components.StyledButton
 import com.zeamapps.snoozy.presentation.components.TimePickerSample
 import com.zeamapps.snoozy.utill.DateFormatHandler
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CustomReminder(
     mainViewModel: MainViewModel,
-    onclickSave: () -> Unit,
+    onClickSave: () -> Unit,
     onClickCancel: () -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
-    var showDatePicker = remember { mutableStateOf(false) }
-    var showColorPicker = remember { mutableStateOf(false) }
-    var showTimePicker = remember { mutableStateOf(false) }
-    var showRepeatingOptions = remember { mutableStateOf(false) }
-    var context = LocalContext.current
+    val showDatePicker = remember { mutableStateOf(false) }
+    val showTimePicker = remember { mutableStateOf(false) }
+    val showColorPicker = remember { mutableStateOf(false) }
+    val showRepeatingOptions = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    ReminderInputField(
-        title = "Reminder Title",
-        true,
-        mainViewModel,
-        focusRequester
-    )
-
-    SelectorRow(
-        selectors = listOf(
-            "Date" to DateFormatHandler().getDayFromTimestamp(mainViewModel.date.value),
-            "Time" to DateFormatHandler().formatTimestampToTime(mainViewModel.time.value),
-            "Tag Color" to null, // Special handling for Tag Color selector
-            "Repeating" to "Do not repeat"
-        ), mainViewModel, {
-            when (it) {
-                "Date" -> showDatePicker.value = true
-                "Time" -> showTimePicker.value = true
-                "Tag Color" -> showColorPicker.value = true
-                "Repeating" -> showRepeatingOptions.value = true
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("New Reminder") },
+                navigationIcon = {
+                    IconButton(onClick = { onClickCancel() }) {
+                        Icon(Icons.Default.Close, contentDescription = "Cancel")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (mainViewModel.reminderTittle.value.isNotEmpty()) {
+                        onClickSave()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Please enter a title",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Check, contentDescription = "Save")
             }
         }
-    )
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Title Input
+            OutlinedTextField(
+                value = mainViewModel.reminderTittle.value,
+                onValueChange = { mainViewModel.reminderTittle.value = it },
+                label = { Text("Reminder Title") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
+            //   Divider()
+
+            // Selectors as simple rows
+            SelectorRowSimple(
+                "Date",
+                DateFormatHandler().getDayFromTimestamp(mainViewModel.date.value),
+                mainViewModel.tagColor.value
+            ) { showDatePicker.value = true }
+
+            SelectorRowSimple(
+                "Time",
+                DateFormatHandler().formatTimestampToTime(mainViewModel.time.value),
+                mainViewModel.tagColor.value
+            ) { showTimePicker.value = true }
+
+            SelectorRowSimple(
+                "Tag Color",
+                "",
+                mainViewModel.tagColor.value
+            ) { showColorPicker.value = true }
+
+            SelectorRowSimple(
+                "Repeating",
+                mainViewModel.repeatingOptions.value.name,
+                mainViewModel.tagColor.value
+            ) { showRepeatingOptions.value = true }
+        }
+
+        // Dialogs
+        if (showDatePicker.value) {
+            CustomDatePicker(
+                onDateSelected = { if (it != null) mainViewModel.date.value = it },
+                onDismiss = { showDatePicker.value = false }
+            )
+        }
+        if (showTimePicker.value) {
+            TimePickerSample(
+                onConfirm = { ts ->
+                    if (ts != null) mainViewModel.time.value = getTimeStamp(ts)
+                    showTimePicker.value = false
+                },
+                onDismiss = { showTimePicker.value = false }
+            )
+        }
+        if (showColorPicker.value) {
+            ColorPickerDialog(
+                onColorSelected = {
+                    mainViewModel.tagColor.value = it
+                    showColorPicker.value = false
+                },
+                onDismiss = { showColorPicker.value = false }
+            )
+        }
+        if (showRepeatingOptions.value) {
+            RepeatingOptionDialog(mainViewModel.repeatingOptions.value) {
+                mainViewModel.repeatingOptions.value = it
+                showRepeatingOptions.value = false
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectorRowSimple(title: String, value: String, color: Color, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .clickable { onClick() }
+            .padding(vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Cancel Button
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-                .background(Color.Transparent, shape = RoundedCornerShape(2.dp))
-                .clickable { onClickCancel() },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Cancel",
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(1.dp))
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-                .background(
-                    MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(4.dp)
+        Text(title, style = MaterialTheme.typography.bodyLarge)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (value.isNotEmpty()) {
+                Text(value, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.width(8.dp))
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape)
+                        .background(color)
                 )
-                .clickable {
-                    if (mainViewModel.reminderTittle.value.isNotEmpty()) {
-                        onclickSave()
-                    } else {
-                        Toast
-                            .makeText(
-                                context,
-                                "Please enter a reminder title.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                    }
-
-                },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Save",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
+            }
+            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null)
         }
     }
-
-    if (showDatePicker.value) {
-        CustomDatePicker({ date ->
-            if (date != null) {
-                mainViewModel.date.value = date
-            }
-        }) { showDatePicker.value = false }
-    }
-
-    if (showTimePicker.value) {
-        TimePickerSample({ timeStamp ->
-            if (timeStamp != null) {
-                var timeToTimeStampValue = getTimeStamp(timeStamp)
-                val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-                val formattedTime = formatter.format(timeToTimeStampValue)
-                Log.d("Value", "TimeStamp ->" + formattedTime + " : " + timeToTimeStampValue)
-                mainViewModel.time.value = timeToTimeStampValue
-            }
-            showTimePicker.value = false
-        }, { showTimePicker.value = false })
-    }
-
-    if (showColorPicker.value) {
-        ColorPickerDialog({
-            mainViewModel.tagColor.value = it
-            showColorPicker.value = false
-        }, { showColorPicker.value = false })
-    }
-
-    if (showRepeatingOptions.value) {
-        RepeatingOptionDialog {
-            showRepeatingOptions.value = false
-            mainViewModel.repeatingOptions.value = it
-        }
-    }
+    //   Divider()
 }
 
 @Composable
@@ -187,8 +211,8 @@ fun SelectorRow(
     mainViewModel: MainViewModel,
     onClick: (String) -> Unit
 ) {
-    var expanded = remember { mutableStateOf(false) }
-    var isAlignedToStart = remember { mutableStateOf(false) }
+    remember { mutableStateOf(false) }
+    remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -215,7 +239,10 @@ fun SelectorRow(
                     Box(
                         modifier = Modifier
                             .size(24.dp)
-                            .background(color = mainViewModel.tagColor.value, shape = CircleShape)
+                            .background(
+                                color = mainViewModel.tagColor.value,
+                                shape = CircleShape
+                            )
                     )
                 } else if (type == "Repeating") {
                     Text(
@@ -248,7 +275,7 @@ fun ReminderInputField(
     mainViewModel: MainViewModel,
     focusRequester: FocusRequester
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    LocalSoftwareKeyboardController.current
     TextField(
         value = if (isFromAddScreen) mainViewModel.reminderTittle.value else mainViewModel.updateReminderTitle.value,
         onValueChange = {

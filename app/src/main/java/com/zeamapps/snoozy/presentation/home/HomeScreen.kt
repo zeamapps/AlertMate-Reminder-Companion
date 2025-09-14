@@ -66,7 +66,8 @@ fun HomeScreen(
     mainViewModel: MainViewModel,
     reminderViewModel: ReminderViewModel,
     onNavigateToSettings: () -> Unit,
-    onNavigateToUpdate: (Long) -> Unit = {}
+    onNavigateToUpdate: (Long) -> Unit = {},
+    onNavigateToAddReminder: () -> Unit
 ) {
     val context = LocalContext.current
     val showBottomSheet = remember { mutableStateOf(false) }
@@ -78,14 +79,16 @@ fun HomeScreen(
     val timestamp = Timestamp.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
     val reminderId = remember { mutableStateOf(0L) }
     val reminders = reminderViewModel.reminderList.collectAsState()
-    val keyboardController = LocalSoftwareKeyboardController.current
+    LocalSoftwareKeyboardController.current
     val hasPermission = getNotificationPermissionState(context).collectAsState()
     mainViewModel.date.value = timestamp.time
 
 
     Scaffold(
         floatingActionButton = {
-            PulsedFloatingActionBtn { showBottomSheet.value = true }
+            PulsedFloatingActionBtn {
+                onNavigateToAddReminder()
+            }
         },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -128,13 +131,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-
-
-//            CalendarWithReminders(month = currentMonth.value,
-//                reminders = reminders.value,
-//                onDateSelected = { selectedDate ->
-//                    selectedDate
-//                })
             // Section Title
             Text(
                 text = "Reminders for ${DateFormatHandler().getDayFromTimestamp(timestamp.time)}",

@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun  RepeatingOptionDialog(onDismiss: (RepeatingOptions) -> Unit) {
+fun  RepeatingOptionDialog(currenctSelectedOption: RepeatingOptions, onDismiss: (RepeatingOptions) -> Unit) {
     var selectedMode = remember { mutableStateOf(RepeatingOptions.DO_NOT_REPEAT) }
     AlertDialog(
         onDismissRequest = { onDismiss(selectedMode.value) },
@@ -32,7 +32,7 @@ fun  RepeatingOptionDialog(onDismiss: (RepeatingOptions) -> Unit) {
             RepeatingOption({
                 selectedMode.value = it
                 onDismiss(it)
-            }, currentOption = selectedMode.value)
+            }, currentOption = currenctSelectedOption)
         },
         confirmButton = {
             Button(

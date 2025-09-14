@@ -39,18 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.zeamapps.snoozy.ui.theme.CharcoalGrey
-
-import com.zeamapps.snoozy.utill.SnoozyColors
-import com.zeamapps.snoozy.utill.SnoozyColors.MediumBlue
 import java.time.LocalDate
 import java.time.Month
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -176,7 +171,6 @@ fun MonthlySelectorExample() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MonthlyViewSelector(
     currentMonth: YearMonth = YearMonth.now(),

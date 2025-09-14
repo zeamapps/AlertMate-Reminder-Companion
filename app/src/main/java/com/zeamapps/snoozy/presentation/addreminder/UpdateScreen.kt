@@ -44,9 +44,9 @@ fun UpdateScreen(
     var showTimePicker = remember { mutableStateOf(false) }
     var showRepeatingOptions = remember { mutableStateOf(false) }
     var reminder = reminderViewModel.getReminderById(reminderId!!).collectAsState(initial = null)
-    Log.d("UpdateTittleScreen","Reminder :@# -> "+reminder.value?.tittle)
-    if(reminder.value != null){
-        Log.d("UpdateTittleScreen","Inside If Reminder :@# -> "+reminder.value?.tittle)
+    Log.d("UpdateTittleScreen", "Reminder :@# -> " + reminder.value?.tittle)
+    if (reminder.value != null) {
+        Log.d("UpdateTittleScreen", "Inside If Reminder :@# -> " + reminder.value?.tittle)
         mainViewModel.updateReminderTitle.value = reminder.value!!.tittle
         mainViewModel.reminderDesc.value = reminder.value!!.description
         mainViewModel.date.value = reminder.value!!.time
@@ -120,7 +120,7 @@ fun UpdateScreen(
         }
 
         if (showRepeatingOptions.value) {
-            RepeatingOptionDialog {
+            RepeatingOptionDialog(mainViewModel.repeatingOptions.value) {
                 showRepeatingOptions.value = false
                 mainViewModel.repeatingOptions.value = it
             }

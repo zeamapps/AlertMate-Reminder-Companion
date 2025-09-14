@@ -1,8 +1,16 @@
 package com.zeamapps.snoozy.presentation.addreminder
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
@@ -19,17 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zeamapps.snoozy.presentation.MainViewModel
-
-import com.zeamapps.snoozy.presentation.viewmodel.ReminderViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,9 +43,7 @@ fun AddReminder(
     onClickSave: (Boolean) -> Unit = {},
 ) {
     val bottomSheetScaffoldState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val coroutineScope = rememberCoroutineScope()
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var reminderTxt = "Set Up Your Reminder"
+    val reminderTxt = "Set Up Your Reminder"
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -174,7 +176,6 @@ fun ReminderContent(value: MainViewModel, onClickSave: (Boolean) -> Unit, onClic
     if (selectedTab.value == "NLP") {
         AiReminder(mainViewModel = value, { onClickSave(true) })
     } else {
-        CustomReminder(mainViewModel = value, { onClickSave(false) }, onClickCancel
-        )
+        CustomReminder(mainViewModel = value, { onClickSave(false) }, onClickCancel)
     }
 }

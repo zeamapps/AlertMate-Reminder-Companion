@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zeamapps.snoozy.data.models.Reminder
 import com.zeamapps.snoozy.domain.AppEntryUseCases
 import com.zeamapps.snoozy.presentation.components.RepeatingOptions
 import com.zeamapps.snoozy.utill.SnoozyColors
@@ -16,7 +15,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     val appEntryUseCases: AppEntryUseCases
 ) : ViewModel() {
-    var startDestination = mutableStateOf(ScreenRoutes.OnBoardingScreen.routes)
+    var startDestination = mutableStateOf(ScreenRoutes.OnBoardingScreen.route)
     var reminderTittle = mutableStateOf("")
         private set
     var reminderDesc = mutableStateOf("")
@@ -52,9 +51,9 @@ class MainViewModel @Inject constructor(
                 .collect { isAppEntryComplete ->
                     Log.d("TAG", "readEntry: $isAppEntryComplete")
                     startDestination.value = if (isAppEntryComplete) {
-                        ScreenRoutes.HomeScreen.routes
+                        ScreenRoutes.HomeScreen.route
                     } else {
-                        ScreenRoutes.OnBoardingScreen.routes
+                        ScreenRoutes.OnBoardingScreen.route
                     }
                 }
         }
